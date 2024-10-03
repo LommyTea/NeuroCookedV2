@@ -18,7 +18,7 @@ public class Game_Behavior : MonoBehaviour
     public Button startTrainingButton;               // The button to start flashing
     public Button startGameButton;         // The button to switch scenes after flashing
     public GameObject flashingCube;          // The object that flashes (should be a GameObject)
-    private float flashInterval = 0.5f;       // Time between flashes
+    private float flashInterval = 0.033f;       // Time between flashes
     private float waitBetweenSequences = 2f;  // Time to wait between sequences
     public int numberOfTrainingEpochs = 1;   // Number of training epochs
     public TMP_Text instructionsText;         // Text to hide when button is clicked
@@ -26,8 +26,6 @@ public class Game_Behavior : MonoBehaviour
     public int[][] mSequences;
     private bool isFlashing = false;
     private Renderer cubeRenderer;           // Reference to the Renderer of the flashing cube
-    public TMP_Text trainingText;
-    public TMP_Text readyToStart;
 
 
     void Start()
@@ -36,8 +34,6 @@ public class Game_Behavior : MonoBehaviour
         GameObject.Find("Begin_Game").SetActive(false);
         GameObject.Find("Training_Cube").SetActive(false);
         rpcClient = FindObjectOfType<rpcClient>();
-        trainingText.gameObject.SetActive(false);
-        readyToStart.gameObject.SetActive(false);
         // Set up button to trigger flashing and hide elements when clicked
         startTrainingButton.onClick.AddListener(OnStartButtonClick);
 
@@ -63,7 +59,7 @@ public class Game_Behavior : MonoBehaviour
 
             // Start the flashing process
             StartCoroutine(FlashTrainingSequences());
-            StartCoroutine(waitingForTrainingStatus());
+            //StartCoroutine(waitingForTrainingStatus());
 
 
         }
@@ -89,7 +85,7 @@ public class Game_Behavior : MonoBehaviour
         // Show the switch scene button after flashing is done
         //Call RPC that calls for training and removes flashing cube
         flashingCube.SetActive(false); 
-        trainingText.gameObject.SetActive(true);
+        //trainingText.gameObject.SetActive(true);
 
         rpcClient.Instance.trainingModel();
     }
@@ -115,17 +111,17 @@ public class Game_Behavior : MonoBehaviour
         Debug.Log("Adding m-sequence" + sequenceNumber);
 
     }
-    IEnumerator waitingForTrainingStatus()
-    {
-        while (!rpcClient.training_status)
-        {
-            yield return null; // Wait until the next frame and check again
-        }
-        trainingText.gameObject.SetActive(false);
-        readyToStart.gameObject.SetActive(true);
-        startGameButton.gameObject.SetActive(true);
+    //IEnumerator waitingForTrainingStatus()
+    //{
+    //    while (!rpcClient.training_status)
+    //    {
+    //        yield return null; // Wait until the next frame and check again
+    //    }
+    //    trainingText.gameObject.SetActive(false);
+    //    readyToStart.gameObject.SetActive(true);
+    //    startGameButton.gameObject.SetActive(true);
 
 
-    }
+    //}
 
 }

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657874, g: 0.49641275, b: 0.5748172, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1025,8 +1025,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1072765872}
-  - component: {fileID: 1072765871}
   - component: {fileID: 1072765873}
+  - component: {fileID: 1072765874}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -1034,26 +1034,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1072765871
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1072765870}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5ef1d412c0e26fd4c9f57ee5b423d6d7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  startTrainingButton: {fileID: 2070769368}
-  startGameButton: {fileID: 111925755}
-  flashingCube: {fileID: 123956160}
-  numberOfTrainingEpochs: 1
-  instructionsText: {fileID: 692316838}
-  rpcClient: {fileID: 0}
-  trainingText: {fileID: 0}
-  readyToStart: {fileID: 0}
 --- !u!4 &1072765872
 Transform:
   m_ObjectHideFlags: 0
@@ -1081,6 +1061,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e38456ffd54c0c44b3b09df53a4dc74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1072765874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1072765870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ef1d412c0e26fd4c9f57ee5b423d6d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startTrainingButton: {fileID: 2070769368}
+  startGameButton: {fileID: 111925755}
+  flashingCube: {fileID: 123956160}
+  numberOfTrainingEpochs: 1
+  instructionsText: {fileID: 692316838}
+  rpcClient: {fileID: 0}
 --- !u!1 &1113687813
 GameObject:
   m_ObjectHideFlags: 0

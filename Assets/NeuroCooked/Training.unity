@@ -684,7 +684,7 @@ GameObject:
   - component: {fileID: 903946594}
   - component: {fileID: 903946593}
   m_Layer: 5
-  m_Name: TrainingComplete
+  m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -729,9 +729,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Training Complete
-
-    Ready to Start'
+  m_text: Training Complete
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1036,28 +1034,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
-<<<<<<< Updated upstream
-=======
---- !u!114 &1072765871
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1072765870}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5ef1d412c0e26fd4c9f57ee5b423d6d7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  startTrainingButton: {fileID: 2070769368}
-  startGameButton: {fileID: 111925755}
-  flashingCube: {fileID: 123956160}
-  numberOfTrainingEpochs: 1
-  instructionsText: {fileID: 692316838}
-  trainingText: {fileID: 991751202}
-  readyToStart: {fileID: 903946593}
->>>>>>> Stashed changes
 --- !u!4 &1072765872
 Transform:
   m_ObjectHideFlags: 0
@@ -1067,7 +1043,7 @@ Transform:
   m_GameObject: {fileID: 1072765870}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -22,7 +22,7 @@ public class Game_Behavior : MonoBehaviour
     private float waitBetweenSequences = 2f;  // Time to wait between sequences
     public int numberOfTrainingEpochs = 1;   // Number of training epochs
     public TMP_Text instructionsText;         // Text to hide when button is clicked
-    public rpcClient rpcClient;
+    private rpcClient rpcClient;
     public int[][] mSequences;
     private bool isFlashing = false;
     private Renderer cubeRenderer;           // Reference to the Renderer of the flashing cube

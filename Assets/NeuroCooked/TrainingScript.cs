@@ -109,9 +109,12 @@ public class Game_Behavior : MonoBehaviour
             {
                 // Flash the current sequence once
                 yield return StartCoroutine(FlashSequence(mSequences[sequenceIndex], sequenceIndex + 1));
+                flashingCube.SetActive(false);
 
                 // Wait between sequences
                 yield return new WaitForSeconds(waitBetweenSequences);
+                flashingCube.SetActive(true);
+
             }
         }
 

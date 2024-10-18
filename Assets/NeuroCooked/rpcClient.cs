@@ -12,7 +12,7 @@ public class rpcClient : MonoBehaviour
     public static rpcClient Instance { get; private set; }
 
     // Public variables for external access
-    public int? decoded_choice;
+    public int decoded_choice;
     public bool training_status;
 
     // Setting up the RPC client
@@ -47,7 +47,7 @@ public class rpcClient : MonoBehaviour
     private void Start()
     {
         training_status = false;
-        decoded_choice = null;
+        decoded_choice = 0;
         handler = new YetAnotherHttpHandler() { Http2Only = true };  // GRPC requires HTTP/2
         channel = GrpcChannel.ForAddress(host, new GrpcChannelOptions() { HttpHandler = handler, Credentials = ChannelCredentials.Insecure });
         client = new CVEPdummyScript.CVEPdummyScriptClient(channel);

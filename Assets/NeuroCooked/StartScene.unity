@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   decoded_choice: 0
   training_status: 0
-  host: http://localhost:64547
+  host: http://localhost:50314
 --- !u!4 &216372055
 Transform:
   m_ObjectHideFlags: 0

@@ -30,7 +30,7 @@ public class Game_Behavior : MonoBehaviour
     public TMP_Text instructionsText;         // Text to hide when button is clicked
     public TMP_Text trainingModelText;
     public TMP_Text trainingCompleteText;
-    public rpcClient rpcClient;
+    public NeuroCookedRpcClient rpcClient;
 
     public Button startGameButton;         // The button to switch scenes after flashing
 
@@ -44,7 +44,7 @@ public class Game_Behavior : MonoBehaviour
         //Setting all of the variables/objects based on name in Unity
         GameObject.Find("Begin_Game").SetActive(false);
         GameObject.Find("Training_Cube").SetActive(false);
-        rpcClient = FindObjectOfType<rpcClient>();
+        rpcClient = FindObjectOfType<NeuroCookedRpcClient>();
         // Set up button to trigger flashing and hide elements when clicked
         startTrainingButton.onClick.AddListener(OnStartButtonClick);
         instructionsText.gameObject.SetActive(true);
@@ -56,7 +56,7 @@ public class Game_Behavior : MonoBehaviour
         // Get the Renderer component from the flashing cube
         cubeRenderer = flashingCube.GetComponent<Renderer>();
         Debug.Log(rpcClient.Msequences);
-        mSequences = rpcClient.Instance.Msequences;
+        mSequences = rpcClient.Msequences;
         
     }
 
@@ -108,7 +108,7 @@ public class Game_Behavior : MonoBehaviour
             for (int sequenceIndex = 0; sequenceIndex < mSequences.Length; sequenceIndex++)
             {
                 // Flash the current sequence once
-                yield return StartCoroutine(FlashSequence(mSequences[sequenceIndex], sequenceIndex + 1));
+                yield return StartCoroutine(FlashSequence(mSequences[sequenceIndex], sequenceIndex+1));
                 flashingCube.SetActive(false);
 
                 // Wait between sequences
@@ -124,10 +124,10 @@ public class Game_Behavior : MonoBehaviour
         //Call RPC that calls for training and removes flashing cube
         flashingCube.SetActive(false); 
         trainingModelText.gameObject.SetActive(true);
-        rpcClient.Instance.trainingModel();
+        rpcClient.trainingModel();
     }
 
-    IEnumerator waitingForTrainingStatus()
+    IEnumerator waitingForTrainingStatus()  
     {
         while (!rpcClient.training_status)
         {

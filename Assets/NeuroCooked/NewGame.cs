@@ -14,7 +14,7 @@ public class MainGame : MonoBehaviour
     private float flashInterval = 0.033f;   //time between flashes (~30Hz)
     public float gameDuration = 30f;        //Duration of the game: 30 seconds
     private float decodeInterval = 1f;    //How often does it decode: 500 ms
-    public rpcClient rpcClient;
+    public NeuroCookedRpcClient rpcClient;
     public int[][] mSequences;              //m-sequence holder
     public AudioSource audioSource;
     public AudioClip audioClip;
@@ -49,8 +49,8 @@ public class MainGame : MonoBehaviour
     void Start()
     {
         //Initialize all variables
-        rpcClient = FindObjectOfType<rpcClient>();
-        mSequences = rpcClient.Instance.Msequences;
+        rpcClient = FindObjectOfType<NeuroCookedRpcClient>();
+        mSequences = rpcClient.Msequences;
         points = 0;
         score.text = "Points";
         timer.text = "Timer";
@@ -125,9 +125,9 @@ public class MainGame : MonoBehaviour
 
             if (rpcClient != null)
             {
-                if (rpcClient.Instance != null)
+                if (rpcClient != null)
                 {
-                    rpcClient.Instance.StartDecode();
+                    rpcClient.StartDecode();
                     Debug.Log($"Decoded choice: {rpcClient.decoded_choice}");
                     ChosenItem = rpcClient.decoded_choice;
 

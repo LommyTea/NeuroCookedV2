@@ -6,10 +6,10 @@ using Cysharp.Net.Http;
 using Grpc.Net.Client;
 using Grpc.Core;
 
-public class NeuroCookedRpcClient : MonoBehaviour
+public class NeuralCookedRpcClient : MonoBehaviour
 {
     // Singleton instance
-    public static NeuroCookedRpcClient Instance { get; private set; }
+    public static NeuralCookedRpcClient Instance { get; private set; }
 
     // Public variables for external access
     public int decoded_choice;
@@ -24,9 +24,9 @@ public class NeuroCookedRpcClient : MonoBehaviour
 
     // Setting up the m-sequences for future use
     private int[][] mSequences = new int[3][] {
-        new int[] { 1, 0, 1, 0, 1 },  // Sequence 1
-        new int[] { 0, 1, 0, 1, 0 },  // Sequence 2
-        new int[] { 1, 1, 0, 0, 1 }   // Sequence 3
+        new int[] { 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0 },  // Sequence 1
+        new int[] { 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1 },  // Sequence 2
+        new int[] { 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1 }   // Sequence 3
     };
 
     // Starting the RPC server as well as resetting the training status and decoded choice

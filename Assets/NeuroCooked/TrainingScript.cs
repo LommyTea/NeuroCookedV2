@@ -30,7 +30,7 @@ public class Game_Behavior : MonoBehaviour
     public TMP_Text instructionsText;         // Text to hide when button is clicked
     public TMP_Text trainingModelText;
     public TMP_Text trainingCompleteText;
-    public NeuroCookedRpcClient rpcClient;
+    public NeuralCookedRpcClient rpcClient;
 
     public Button startGameButton;         // The button to switch scenes after flashing
 
@@ -44,7 +44,7 @@ public class Game_Behavior : MonoBehaviour
         //Setting all of the variables/objects based on name in Unity
         GameObject.Find("Begin_Game").SetActive(false);
         GameObject.Find("Training_Cube").SetActive(false);
-        rpcClient = FindObjectOfType<NeuroCookedRpcClient>();
+        rpcClient = FindObjectOfType<NeuralCookedRpcClient>();
         // Set up button to trigger flashing and hide elements when clicked
         startTrainingButton.onClick.AddListener(OnStartButtonClick);
         instructionsText.gameObject.SetActive(true);
@@ -81,14 +81,16 @@ public class Game_Behavior : MonoBehaviour
     IEnumerator FlashSequence(int[] sequence, int sequenceNumber)
     {
         float startTime = Time.time;  // Record start time for duration
-
-        for (int i = 0; i < sequence.Length; i++)
+        for (int j = 0; j < 2; j++)
         {
-            // Set the object to black or white based on the m-sequence value (1 = white, 0 = black)
-            cubeRenderer.material.color = sequence[i] == 1 ? Color.white : Color.black;
+            for (int i = 0; i < sequence.Length; i++)
+            {
+                // Set the object to black or white based on the m-sequence value (1 = white, 0 = black)
+                cubeRenderer.material.color = sequence[i] == 1 ? Color.white : Color.black;
 
-            // Wait for the next flash interval
-            yield return new WaitForSeconds(flashInterval);
+                // Wait for the next flash interval
+                yield return new WaitForSeconds(flashInterval);
+            }
         }
 
         float endTime = Time.time;  // Record end time
@@ -105,10 +107,11 @@ public class Game_Behavior : MonoBehaviour
         isFlashing = true;
         for (int epoch = 0; epoch < numberOfTrainingEpochs; epoch++)
         {
+
             for (int sequenceIndex = 0; sequenceIndex < mSequences.Length; sequenceIndex++)
             {
                 // Flash the current sequence once
-                yield return StartCoroutine(FlashSequence(mSequences[sequenceIndex], sequenceIndex+1));
+                yield return StartCoroutine(FlashSequence(mSequences[sequenceIndex], sequenceIndex + 1));
                 flashingCube.SetActive(false);
 
                 // Wait between sequences

@@ -169,7 +169,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   decoded_choice: 0
   training_status: 0
-  host: http://localhost:63330
+  host: http://localhost:60239
 --- !u!1 &371777054
 GameObject:
   m_ObjectHideFlags: 0

@@ -14,7 +14,7 @@ public class MainGame : MonoBehaviour
     private float flashInterval = 0.033f;   //time between flashes (~30Hz)
     public float gameDuration = 30f;        //Duration of the game: 30 seconds
     private float decodeInterval = 1f;    //How often does it decode: 500 ms
-    public NeuroCookedRpcClient rpcClient;
+    public NeuralCookedRpcClient rpcClient;
     public int[][] mSequences;              //m-sequence holder
     public AudioSource audioSource;
     public AudioClip audioClip;
@@ -49,7 +49,7 @@ public class MainGame : MonoBehaviour
     void Start()
     {
         //Initialize all variables
-        rpcClient = FindObjectOfType<NeuroCookedRpcClient>();
+        rpcClient = FindObjectOfType<NeuralCookedRpcClient>();
         mSequences = rpcClient.Msequences;
         points = 0;
         score.text = "Points";

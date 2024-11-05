@@ -86,7 +86,7 @@ public class Game_Behavior : MonoBehaviour
             for (int i = 0; i < sequence.Length; i++)
             {
                 // Set the object to black or white based on the m-sequence value (1 = white, 0 = black)
-                cubeRenderer.material.color = sequence[i] == 1 ? Color.white : Color.black;
+                cubeRenderer.material.color = sequence[i] == 0 ? Color.white : Color.black;
 
                 // Wait for the next flash interval
                 yield return new WaitForSeconds(flashInterval);

@@ -12,8 +12,8 @@ public class MainGame : MonoBehaviour
 {
     //Game Constants
     private float flashInterval = 0.033f;   //time between flashes (~30Hz)
-    public float gameDuration = 30f;        //Duration of the game: 30 seconds
-    private float decodeInterval = 1f;    //How often does it decode: 500 ms
+    public float gameDuration = 600f;        //Duration of the game: 30 seconds
+    private float decodeInterval = 0.5f;    //How often does it decode: 500 ms
     public NeuralCookedRpcClient rpcClient;
     public int[][] mSequences;              //m-sequence holder
     public AudioSource audioSource;
@@ -65,6 +65,7 @@ public class MainGame : MonoBehaviour
         //Start the game timer
         StartCoroutine(GameTimer(gameDuration));
         //Update item order
+        //Update item 
         SetCustomerOrder();
         ClearBoard();
         //set up board
@@ -135,30 +136,23 @@ public class MainGame : MonoBehaviour
                     {
                         userChosenItems.Add(ChosenItem);    //add the chosen item to the list
                         updateBoard();
+                        if (ChosenItem != orderFoodItems[(userChosenItems.Count)])
+                        
+                            userChosenItems.Clear();
+                            updateBoard();
+                        }
                         if (userChosenItems.Count == orderFoodItems.Count)
                         {
-                            //Compare to see if the orderedFood Items are the same as what the user has chosen
-                            if (AreListsEqual(orderFoodItems, userChosenItems))
-                            {
-                                //If the two lists are equal player correctly got the right items
-                                //add a point, clear the chosen items, and reset what the customer wants
-                                Debug.Log(userChosenItems);
-                                points++;
-                                userChosenItems.Clear();
-                                SetCustomerOrder();
-                                audioSource.PlayOneShot(audioClip);
+                            //If the two lists are equal player correctly got the right items
+                            //add a point, clear the chosen items, and reset what the customer wants
+                            Debug.Log(userChosenItems);
+                            points++;
+                            userChosenItems.Clear();
+                            SetCustomerOrder();
+                            audioSource.PlayOneShot(audioClip);
 
-                                yield return new WaitForSeconds(0.02f);
-                                updateBoard();
-                                //clear userChosenLocation
-                            }
-                            //if it is not equal, clear the chosen items and do nothing
-                            else 
-                            { 
-                                userChosenItems.Clear(); 
-                                yield return new WaitForSeconds(0.02f);
-                                updateBoard(); 
-                            }
+                            yield return new WaitForSeconds(0.02f);
+                            updateBoard();
                         }
                         
                         //updating the score
@@ -166,8 +160,6 @@ public class MainGame : MonoBehaviour
                     }
                 }
                 else { Debug.LogError("rpcClient.Instance is null."); }
-            }
-            else { Debug.LogError("rpcClient is null."); }
         }
     }
 

@@ -136,23 +136,31 @@ public class MainGame : MonoBehaviour
                     {
                         userChosenItems.Add(ChosenItem);    //add the chosen item to the list
                         updateBoard();
-                        if (ChosenItem != orderFoodItems[(userChosenItems.Count)])
-                        
-                            userChosenItems.Clear();
-                            updateBoard();
-                        }
+
                         if (userChosenItems.Count == orderFoodItems.Count)
                         {
-                            //If the two lists are equal player correctly got the right items
-                            //add a point, clear the chosen items, and reset what the customer wants
-                            Debug.Log(userChosenItems);
-                            points++;
-                            userChosenItems.Clear();
-                            SetCustomerOrder();
-                            audioSource.PlayOneShot(audioClip);
+                            //Compare to see if the orderedFood Items are the same as what the user has chosen
+                            if (AreListsEqual(orderFoodItems, userChosenItems))
+                            {
+                                //If the two lists are equal player correctly got the right items
+                                //add a point, clear the chosen items, and reset what the customer wants
+                                Debug.Log(userChosenItems);
+                                points++;
+                                userChosenItems.Clear();
+                                SetCustomerOrder();
+                                audioSource.PlayOneShot(audioClip);
 
-                            yield return new WaitForSeconds(0.02f);
-                            updateBoard();
+                                yield return new WaitForSeconds(0.02f);
+                                updateBoard();
+                                //clear userChosenLocation
+                            }
+                            //if it is not equal, clear the chosen items and do nothing
+                            else 
+                            { 
+                                userChosenItems.Clear(); 
+                                yield return new WaitForSeconds(0.02f);
+                                updateBoard(); 
+                            }
                         }
                         
                         //updating the score
@@ -160,6 +168,8 @@ public class MainGame : MonoBehaviour
                     }
                 }
                 else { Debug.LogError("rpcClient.Instance is null."); }
+            }
+            else { Debug.LogError("rpcClient is null."); }
         }
     }
 

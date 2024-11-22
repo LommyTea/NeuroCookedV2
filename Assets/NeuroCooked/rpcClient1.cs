@@ -5,42 +5,54 @@ using Google.Protobuf.WellKnownTypes;
 using Cysharp.Net.Http;
 using Grpc.Net.Client;
 using Grpc.Core;
+using LSL;
 
 public class NeuralCookedRpcClient : MonoBehaviour
 {
-    // Singleton instance
+    //Singleton instance
     public static NeuralCookedRpcClient Instance { get; private set; }
 
-    // Public variables for external access
+    //Public variables for external access
     public int decoded_choice;
     public bool training_status;
 
-    // Setting up the RPC client
+    //Setting up the RPC client
     private GrpcChannel channel;
     private YetAnotherHttpHandler handler;
     private NeuralCooked.NeuralCookedClient client;
 
     public string host = "http://localhost:13004";
 
-    // Setting up the m-sequences for future use
+    //Setting up the m-sequences for future use
     private int[][] mSequences = new int[3][] {
-        new int[] { 0,0,0,1,1,1,1,0,1,0,1,1,0,0,1 },  // Sequence 1
-        new int[] { 1,0,1,1,0,0,1,0,0,0,1,1,1,1,0 },  // Sequence 2
-        new int[] { 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0 }   // Sequence 3
+        new int[] { 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0 },  //Sequence 1
+        new int[] { 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0 },  //Sequence 2
+        new int[] { 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 0 }   //Sequence 3
     };
+    //Creating event markers for offline analysis of EEG Data
+    [Header("LSL Stream Settings")]
+    public LSL.channel_format_t channelFormat = LSL.channel_format_t.cf_float32;
+    public string streamName = "NeuroCookedEventMarker";
+    public string streamType = "LSL";
+    public int channelNum = 1;
+    public float nominalSamplingRate = 100.0f;
 
-    // Starting the RPC server as well as resetting the training status and decoded choice
+    [Header("Stream Status")]
+    public StreamOutlet streamOutlet;
+
+
+    //Starting the RPC server as well as resetting the training status and decoded choice
     private void Awake()
     {
-        // Ensure that only one instance of RpcClient exists
+        //Ensure that only one instance of RpcClient exists
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // This makes the object persist through scene loads
+            DontDestroyOnLoad(gameObject); //This makes the object persist through scene loads
         }
         else
         {
-            Destroy(gameObject); // Destroy any duplicate instances
+            Destroy(gameObject); //Destroy any duplicate instances
         }
     }
 
@@ -48,20 +60,29 @@ public class NeuralCookedRpcClient : MonoBehaviour
     {
         training_status = false;
         decoded_choice = 0;
-        handler = new YetAnotherHttpHandler() { Http2Only = true };  // GRPC requires HTTP/2
+        handler = new YetAnotherHttpHandler() { Http2Only = true };  //GRPC requires HTTP/2
         channel = GrpcChannel.ForAddress(host, new GrpcChannelOptions() { HttpHandler = handler, Credentials = ChannelCredentials.Insecure });
         client = new NeuralCooked.NeuralCookedClient(channel);
+
+        //create the stream outlet
+        StreamInfo streamInfo = new StreamInfo(streamName,
+                                        streamType,
+                                        channelNum,
+                                        nominalSamplingRate,
+                                        channelFormat
+                                        );
+        streamOutlet = new StreamOutlet(streamInfo);
     }
 
-    // Allows for other codes to access the m-sequences without needing to create bloat
+    //Allows for other codes to access the m-sequences without needing to create bloat
     public int[][] Msequences
     {
         get { return mSequences; }
     }
 
-    // Adding an RPC function calling for physiolab to collect all of the data from a certain duration past
-    // and add the EEG data under the sequence it corresponds to
-    // Returns nothing
+    //Adding an RPC function calling for physiolab to collect all of the data from a certain duration past
+    //and add the EEG data under the sequence it corresponds to
+    //Returns nothing
     public void AddSequenceData(int sequenceNumber, float duration)
     {
         AddSequenceDataRPC(sequenceNumber, duration);
@@ -73,8 +94,8 @@ public class NeuralCookedRpcClient : MonoBehaviour
         var call = client.add_seq_dataAsync(request);
     }
 
-    // Adding an RPC function calling physiolab to train the model based on all of the data it has.
-    // Sets training_status to true once it is done training.
+    //Adding an RPC function calling physiolab to train the model based on all of the data it has.
+    //Sets training_status to true once it is done training.
     public void trainingModel()
     {
         StartCoroutine(training());
@@ -98,8 +119,8 @@ public class NeuralCookedRpcClient : MonoBehaviour
         }
     }
 
-    // Adding an RPC function calling physiolab to decode the model (but in reality it just grabs the most common decoded value)
-    // Sets the decoded choice as whatever was decoded whenever it is called.
+    //Adding an RPC function calling physiolab to decode the model (but in reality it just grabs the most common decoded value)
+    //Sets the decoded choice as whatever was decoded whenever it is called.
     public void StartDecode()
     {
         StartCoroutine(decode());

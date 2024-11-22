@@ -3,7 +3,12 @@ guid: bebe0845b91b48c49afbf4184a24ac8d
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - rpcClient: {instanceID: 0}
+  - audioSource: {instanceID: 0}
+  - audioClip: {fileID: 8300000, guid: f38a4796201301940820682bcbddb53a, type: 3}
+  - score: {instanceID: 0}
+  - timer: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

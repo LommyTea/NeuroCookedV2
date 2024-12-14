@@ -168,8 +168,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   decoded_choice: 0
-  training_status: 1
-  host: http://localhost:50401
+  host: http://localhost:58458
   channelFormat: 1
   streamName: NeuroCookedEventMarker
   streamType: LSL

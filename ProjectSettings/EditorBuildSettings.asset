@@ -8,7 +8,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/NeuroCooked/StartScene.unity
     guid: 1b871d6531f83b54e8d47a468ca9e331
-  - enabled: 1
+  - enabled: 0
     path: Assets/NeuroCooked/Training.unity
     guid: 2f9baa4f73fbe3944ad3973ddf14105f
   - enabled: 1

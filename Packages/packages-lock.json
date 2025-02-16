@@ -7,6 +7,20 @@
       "dependencies": {},
       "hash": "a7f19a9d6088b5133806c918191b44dda8c1c1e1"
     },
+    "com.unity.addressables": {
+      "version": "1.21.21",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.assetbundle": "1.0.0",
+        "com.unity.modules.jsonserialize": "1.0.0",
+        "com.unity.modules.imageconversion": "1.0.0",
+        "com.unity.modules.unitywebrequest": "1.0.0",
+        "com.unity.scriptablebuildpipeline": "1.21.23",
+        "com.unity.modules.unitywebrequestassetbundle": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.collab-proxy": {
       "version": "2.5.1",
       "depth": 0,
@@ -115,6 +129,13 @@
       "dependencies": {
         "com.unity.settings-manager": "1.0.2"
       },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.scriptablebuildpipeline": {
+      "version": "1.21.23",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
       "url": "https://packages.unity.com"
     },
     "com.unity.settings-manager": {

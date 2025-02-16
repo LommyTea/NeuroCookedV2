@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,68 +7,74 @@ using System.Linq;
 
 public class MainGame : MonoBehaviour
 {
-    // Game Constants
-    private float flashInterval = 0.0166f; // Time between flashes (~30Hz)
-    public float gameDuration = 600f; // Duration of the game: 600 seconds
-    private float decodeInterval = 1f; // Decoding interval: 1 second
-    public NeuralCookedRpcClient rpcClient; // RPC client to communicate with PhysioLabXR
-    public AudioSource audioSource; // Audio source for the ding
-    public AudioClip audioClip; // Audio clip for the ding
+    // Locations of where food sprites will populate 
+    public Transform[] orderLoc; // Where the order will show up
+    public Transform[] chosenLoc; // Where the user's choices will show up
+    public Transform[] optionsLoc; // Where the food will show up
 
-    // Game Locations
-    public Transform[] orderLocation; // Where the order will show up
-    public Transform[] userChosenLocation; // Where the user's choices will show up
-    public Transform[] foodLocation; // Where the food will show up
+    // Game Constants
+    public float gameDuration = 600f; // Duration of the game: 600 seconds
+    public NeuralCookedRpcClient rpcClient; // RPC client to communicate with PhysioLabXR
+
 
     // UI Elements
     public TextMeshPro scoreText;
     public TextMeshPro timerText;
     private int points;
+    // Add audio element
 
-    // Flashing Cubes
+    // Variables important for decoding EEG signals
     public GameObject[] cubes; // Flashing Cubes
-    private Coroutine decodeCoroutine;
-    public float[] flashFrequencies;
+    public float[] flashFrequencies; // Frequencies the cubes will be flashing at for SSVEP
+    public float[] mSequences; // Storing the m-sequences
+    private Coroutine decodeCoroutine; // Function called when decode interval is met
+    private float decodeInterval = 1f; // Decoding interval: 1 second
+    private float flashInterval = 0.0166f; // Time between flashes (~30Hz)
     private List<Coroutine> flashCoroutines = new List<Coroutine>();
+    private int chosenItem = 0; // The item the user has chosen
 
     // Food Elements
-    public List<GameObject> allFoodItemsPrefabs; // Prefabs for all food items
-    private List<string> allFoodItems = new List<string>(); // Names of all food items
-    private List<string> orderFoodItems = new List<string>();
-    private List<string> userChosenItems = new List<string>();
-    private List<GameObject> instantiatedOrderItems = new List<GameObject>();
-    private List<GameObject> instantiatedUserChosenItems = new List<GameObject>();
-    private List<GameObject> instantiatedFoodItems = new List<GameObject>();
-
-    private List<int> itemNum = new List<int>();
-    private string targetItem;
-    private List<string> options = new List<string>();
-
     private Dictionary<string, GameObject> foodDictionary = new Dictionary<string, GameObject>();
-
+    private Dictionary<string, int> orderNumbered = new Dictionary<string, int>();
+    private string[] chosenFoods = new string [3];
+    private string[] optionFood;
+    private int currentTarget = 0;
+    private List<GameObject> instantiatedOrderItems = new List<GameObject>();
+    private List<GameObject> instantiatedChosenItems = new List<GameObject>();
+    private List<GameObject> instantiatedOptionsItems = new List<GameObject>();
     void Start()
     {
         // Initialize game variables
-        rpcClient = FindObjectOfType<NeuralCookedRpcClient>();
+        // rpcClient = FindObjectOfType<NeuralCookedRpcClient>();
         flashFrequencies = new float[] { 10f, 14f, 25f };
         points = 0;
         scoreText.text = "Points: 0";
         timerText.text = "Time Left: " + gameDuration + "s";
-        audioSource = gameObject.AddComponent<AudioSource>();
-
-        foreach (var foodPrefab in allFoodItemsPrefabs)
-        {
-            allFoodItems.Add(foodPrefab.name);
-            foodDictionary[foodPrefab.name] = foodPrefab;
-        }
+        loadModels();
 
         // Start the game
-        InvokeRepeating("FlashCubes", 0, flashInterval);
+        //InvokeRepeating("FlashCubes", 0, flashInterval);
         decodeCoroutine = StartCoroutine(DecodeAtIntervals(decodeInterval));
         StartCoroutine(GameTimer(gameDuration));
         StartNewOrder();
+        UpdateBoard();  
     }
+    void loadModels()
+    {
+        List<string> modelNames = new List<string> {"Burger", "Coffee", "Croissant", "Fries", "HotDog", "IceCream", "Juice", "Taco" };
+        foreach (string modelName in modelNames) {
+            GameObject model = Resources.Load<GameObject>("Models/" + modelName);
+            if (model != null)
+            {
+                foodDictionary[modelName] = model;
+            }
+            else
+            {
+                Debug.LogWarning($"Model for {modelName} not found in Resources/Models!");
+            }
+        }
 
+    }
     IEnumerator GameTimer(float duration)
     {
         float timeRemaining = duration;
@@ -89,9 +96,9 @@ public class MainGame : MonoBehaviour
 
     void FlashCubes()
     {
-        for (int i = 0; i < cubes.Length; i++)
+        for (int i = 0; i<cubes.Length; i++)
         {
-            if (i < flashFrequencies.Length)
+            if (i<flashFrequencies.Length)
             {
                 Coroutine coroutine = StartCoroutine(FlashObjectWithSineWave(cubes[i], flashFrequencies[i]));
                 flashCoroutines.Add(coroutine);
@@ -122,172 +129,163 @@ public class MainGame : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+
+        if (rpcClient == null) // Only check input if rpcClient is null
+        {
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                chosenItem = 1;
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                chosenItem = 2;
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha3))
+            {
+                chosenItem = 3;
+            }
+        }
+    }
+
     IEnumerator DecodeAtIntervals(float interval)
     {
         while (true)
-        {
+        { 
             yield return new WaitForSeconds(interval);
 
             if (rpcClient != null)
             {
                 rpcClient.StartDecode();
-                int chosenItem = rpcClient.decoded_choice;
-
-                if (chosenItem != 0)
-                {
-                    string itemName = allFoodItems[chosenItem - 1];
-                    userChosenItems.Add(itemName);
-                    Debug.Log($"Decoded choice: {itemName}");
-                    GenerateOptions();
-                    UpdateBoard();
-
-                    if (userChosenItems.Count == orderFoodItems.Count)
-                    {
-                        if (AreListsEqual(orderFoodItems, userChosenItems))
-                        {
-                            points++;
-                            audioSource.PlayOneShot(audioClip);
-                            Debug.Log("Order matched successfully!");
-                        }
-                        else
-                        {
-                            Debug.Log("Order did not match.");
-                        }
-
-                        userChosenItems.Clear();
-                        StartNewOrder();
-                    }
-
-                    scoreText.text = "Points: " + points;
-                }
+                chosenItem = rpcClient.decoded_choice;
             }
-            else
+
+            if (chosenItem != 0)
             {
-                Debug.LogError("rpcClient.Instance is null.");
+                chosenFoods[currentTarget] = optionFood[chosenItem - 1];
+                Debug.Log($"Chosen Food: {chosenFoods[currentTarget]}");
+                chosenItem = 0;
+                if (currentTarget == 2)
+                {
+                    // Check if the user's choices match the order
+                    bool exactMatch = chosenFoods.SequenceEqual(orderNumbered.Keys);
+                    Debug.Log($"Exact Match: {exactMatch}");
+                    if (exactMatch)
+                    {
+                        points++;
+                        StartNewOrder();
+                        scoreText.text = "Points: " + points;
+                    }
+                    Debug.Log($"Points: {points}");
+                    currentTarget = 0;
+                    chosenFoods = new string[3];
+                    createOptions(currentTarget);
+                    UpdateBoard();
+                }
+                else
+                {
+                    currentTarget++;
+                    createOptions(currentTarget);
+                    UpdateBoard();
+                }
+
             }
         }
     }
-
-    bool AreListsEqual(List<string> list1, List<string> list2)
-    {
-        if (list1.Count != list2.Count) return false;
-        for (int i = 0; i < list1.Count; i++)
-        {
-            if (list1[i] != list2[i]) return false;
-        }
-        return true;
-    }
-
     void StartNewOrder()
-    {
-        orderFoodItems.Clear();
-        userChosenItems.Clear();
-        options.Clear();
-        AssignRandomNumbersToItems();
-        GenerateCustomerOrder();
-        GenerateOptions();
-        UpdateBoard();
-    }
-
-    void AssignRandomNumbersToItems()
-    {
-        itemNum.Clear();
-        for (int i = 0; i < allFoodItems.Count; i++)
         {
-            itemNum.Add(i);
+            // Randomly select 3 items from the food dictionary and give them numbers from 1-3 randomly
+            List<string> orderItems = foodDictionary.Keys.OrderBy(x => UnityEngine.Random.value).Take(3).ToList();
+            orderNumbered = new Dictionary<string, int>();
+
+            foreach (string item in orderItems)
+            {
+                int number = UnityEngine.Random.Range(1, 4);
+                orderNumbered[item] = number;
+            }
+
+            // Created a dictionary of the ordered food items and the cooresponding cube it should be placed in.
+            // Populate the orderLoc with the first ordered food and the other two options
+            createOptions(currentTarget);
         }
 
-        for (int i = itemNum.Count - 1; i > 0; i--)
-        {
-            int randomIndex = UnityEngine.Random.Range(0, i + 1);
-            int temp = itemNum[i];
-            itemNum[i] = itemNum[randomIndex];
-            itemNum[randomIndex] = temp;
-        }
-    }
-
-    void GenerateCustomerOrder()
+    void createOptions(int currentNum)
     {
+        KeyValuePair<string, int> currentTarget = orderNumbered.ElementAt(currentNum);
+
+        var otherOptions = foodDictionary
+            .Where(pair => pair.Key != currentTarget.Key)
+            .ToList().OrderBy(_ => UnityEngine.Random.value)
+            .Take(2).ToList();
+        optionFood = new string[3];
+        optionFood[currentTarget.Value - 1] = currentTarget.Key;
+        int index = 0;
         for (int i = 0; i < 3; i++)
         {
-            orderFoodItems.Add(allFoodItems[itemNum[i]]);
+            if (i != currentTarget.Value-1)
+            {
+                optionFood[i] = otherOptions[index].Key;
+                index++;
+            }
+        }
+        for (int i = 0; i < optionFood.Length; i++)
+        {
+            string value = string.IsNullOrEmpty(optionFood[i]) ? "Empty" : optionFood[i];
         }
     }
-
-    void GenerateOptions()
-    {
-        options.Clear();
-
-        // Ensure the next required item is added first
-        if (userChosenItems.Count < orderFoodItems.Count)
-        {
-            string nextRequiredItem = orderFoodItems[userChosenItems.Count];
-            options.Add(nextRequiredItem);
-        }
-
-        // Fill the remaining options with random items (excluding duplicates)
-        List<string> remainingItems = allFoodItems.Except(options).ToList();
-        ShuffleList(remainingItems);
-
-        while (options.Count < 3)
-        {
-            options.Add(remainingItems[0]);
-            remainingItems.RemoveAt(0);
-        }
-
-        // Shuffle options to randomize the order
-        ShuffleList(options);
-
-        // Debug logs to track state
-        Debug.Log($"Options generated: {string.Join(", ", options)}");
-        Debug.Log($"Food locations available: {foodLocation.Length}");
-    }
-
-    // Helper method to shuffle a list
-    void ShuffleList<T>(List<T> list)
-    {
-        for (int i = list.Count - 1; i > 0; i--)
-        {
-            int randomIndex = UnityEngine.Random.Range(0, i + 1);
-            T temp = list[i];
-            list[i] = list[randomIndex];
-            list[randomIndex] = temp;
-        }
-    }
-
-
-
     void UpdateBoard()
     {
         ClearBoard();
+        //foreach (string item in chosenFoods)
+        //{
+        //    Debug.Log($"Chosen Food Item: {item}");
+        //}
 
+        //foreach (var key in orderNumbered.Keys)
+        //{
+        //    Debug.Log($"orderNumbered Key: '{key}'");
+        //}
+
+        if (foodDictionary == null)
+        {
+            Debug.LogError("Food Dictionary is null!");
+            return;
+        }
         int foodIndex = 0;
-        foreach (string item in orderFoodItems)
+        foreach (string item in orderNumbered.Keys)
         {
             GameObject foodItem = foodDictionary[item];
-            GameObject instantiatedItem = Instantiate(foodItem, orderLocation[foodIndex].position, Quaternion.identity);
+            GameObject instantiatedItem = Instantiate(foodItem, orderLoc[foodIndex].position, Quaternion.identity);
+            instantiatedItem.transform.localScale = orderLoc[foodIndex].localScale;
             instantiatedOrderItems.Add(instantiatedItem);
             foodIndex++;
         }
 
         int userIndex = 0;
-        foreach (string item in userChosenItems)
+        foreach (string item in chosenFoods)
         {
-            GameObject foodItem = foodDictionary[item];
-            GameObject instantiatedItem = Instantiate(foodItem, userChosenLocation[userIndex].position, Quaternion.identity);
-            instantiatedUserChosenItems.Add(instantiatedItem);
-            userIndex++;
+            if ( item != null)
+            {
+                GameObject foodItem = foodDictionary[item];
+                GameObject instantiatedItem = Instantiate(foodItem, chosenLoc[userIndex].position, Quaternion.identity);
+                instantiatedItem.transform.localScale = chosenLoc[userIndex].localScale;
+                instantiatedChosenItems.Add(instantiatedItem);
+                userIndex++;
+            }
+            else
+            {
+                continue;
+            }
+
         }
-        // Add debug logs
-        Debug.Log($"Options count: {options.Count}");
-        Debug.Log($"FoodLocation count: {foodLocation.Length}");
         int optionsIndex = 0;
-        foreach (string item in options)
+        foreach (string item in optionFood)
         {
-            Debug.Log(options);
             GameObject foodItem = foodDictionary[item];
-            GameObject instantiatedItem = Instantiate(foodItem, foodLocation[optionsIndex].position, Quaternion.identity);
-            instantiatedFoodItems.Add(instantiatedItem);
+            GameObject instantiatedItem = Instantiate(foodItem, optionsLoc[optionsIndex].position, Quaternion.identity);
+            instantiatedItem.transform.localScale = optionsLoc[optionsIndex].localScale;
+            instantiatedOptionsItems.Add(instantiatedItem);
             optionsIndex++;
         }
     }
@@ -300,16 +298,16 @@ public class MainGame : MonoBehaviour
         }
         instantiatedOrderItems.Clear();
 
-        foreach (GameObject item in instantiatedUserChosenItems)
+        foreach (GameObject item in instantiatedChosenItems)
         {
             Destroy(item);
         }
-        instantiatedUserChosenItems.Clear();
+        instantiatedChosenItems.Clear();
 
-        foreach (GameObject item in instantiatedFoodItems)
+        foreach (GameObject item in instantiatedOptionsItems)
         {
             Destroy(item);
         }
-        instantiatedFoodItems.Clear();
+        instantiatedOptionsItems.Clear();
     }
 }
